@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 // User schema
@@ -15,10 +13,8 @@ UserSchema.methods.comparePassword = function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model('User', UserSchema);
-module.exports = User;
+// Define the model only once
+const UserModel = mongoose.model("User", UserSchema);  // 'User' is the model name
 
-
-const UserModel = mongoose.model("users", UserSchema);
-
+// Export the model
 module.exports = UserModel;
