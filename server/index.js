@@ -15,10 +15,12 @@ mongoose.connect("mongodb+srv://ahmadehsanbishawi:Hm7532wbi0pny3oa@user.1bvbvtu.
 // Changed the /login route to use async/await
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+    }
     try {
         const user = await UserModel.findOne({ email });
         if (user) {
-            // Use the comparePassword method to check if the password is correct
             const isMatch = await user.comparePassword(password);
             if (isMatch) {
                 res.json("Success");
@@ -29,6 +31,7 @@ app.post("/login", async (req, res) => {
             res.json("No record existed");
         }
     } catch (err) {
+        console.error("Login error: ", err);
         res.status(500).json({ error: err.message });
     }
 });
