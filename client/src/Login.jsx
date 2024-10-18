@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -8,19 +8,23 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false); 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios.post("https://signin-signup-a8q1.onrender.com/login", { email, password })
-      .then(result => {
-        console.log(result);
-        if (result.data.token) { // Store token
-          localStorage.setItem('authToken', result.data.token);
-          navigate("/home", { state: { fromLogin: true } });
-        } else {
-          alert("Invalid credentials");
-        }
-      })
-      .catch(err => console.log(err));
+    const loginData = { email, password };
+
+    try {
+      const response = await axios.post('https://signin-signup-a8q1.onrender.com/login', loginData);
+      
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token); // Store token in localStorage
+        navigate('/home', { state: { fromLogin: true } }); // Navigate to home page
+      } else {
+        alert("Invalid credentials"); // Show error message if login fails
+      }
+    } catch (error) {
+      console.error("Login error: ", error);
+      alert("Login failed. Please try again.");
+    }
   };
 
   return (

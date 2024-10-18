@@ -48,7 +48,21 @@ app.post("/register", async (req, res) => {
         })
         .catch(err => console.log(err.message));
 });
-
+app.get("/verifyToken", (req, res) => {
+    const token = req.headers.authorization.split(" ")[1]; // Get token from 'Bearer <token>'
+  
+    if (!token) {
+      return res.status(401).json({ message: "Token missing" });
+    }
+  
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+      res.json({ message: "Token is valid" });
+    });
+  });
+  
     
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'build/index.html'));
