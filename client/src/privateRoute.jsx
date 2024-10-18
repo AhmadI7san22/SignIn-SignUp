@@ -9,7 +9,7 @@ const PrivateRoute = ({ children }) => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        await axios.get('https://signin-signup-a8q1.onrender.com/verifyToken', {
+        await axios.get('https://signin-signup-a8q1.onrender.com/login, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsValid(true);
