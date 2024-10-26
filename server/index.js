@@ -4,8 +4,11 @@ const cors = require("cors");
 const UserModel = require("./model/User");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const app = express();
+const JWT_SECRET = "your_jwt_secret_key"; // Replace with a secure secret key
+
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, "build")));
@@ -23,12 +26,14 @@ app.post("/login", async (req, res) => {
         if (user) {
             const isMatch = await user.comparePassword(password);
             if (isMatch) {
-                res.json("Success");
+                // Generate JWT token on successful login
+                const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
+                res.json({ message: "Success", token });
             } else {
-                res.json("The password is incorrect");
+                res.status(400).json({ message: "The password is incorrect" });
             }
         } else {
-            res.json("No record existed");
+            res.status(400).json({ message: "No record existed" });
         }
     } catch (err) {
         console.error("Login error: ", err);
@@ -44,26 +49,26 @@ app.post("/register", async (req, res) => {
             // Save the hashed password under the 'password' field
             UserModel.create({ name, email, password: hash })
                 .then(user => res.json(user))
-                .catch(err => res.json(err));
+                .catch(err => res.status(400).json({ error: err.message }));
         })
         .catch(err => console.log(err.message));
 });
+
 app.get("/verifyToken", (req, res) => {
-    const token = req.headers.authorization.split(" ")[1]; // Get token from 'Bearer <token>'
-  
+    const token = req.headers.authorization?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ message: "Token missing" });
+        return res.status(401).json({ message: "Token missing" });
     }
-  
+
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
-      if (err) {
-        return res.status(401).json({ message: "Invalid token" });
-      }
-      res.json({ message: "Token is valid" });
+        if (err) {
+            return res.status(401).json({ message: "Invalid token" });
+        }
+        res.json({ message: "Token is valid", decoded });
     });
-  });
-  
-    
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'build/index.html'));
 });

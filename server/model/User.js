@@ -8,8 +8,8 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true }
 });
 
-// Compare passwords method
-UserSchema.methods.comparePassword = function(candidatePassword) {
+// Add a method to compare hashed password
+UserSchema.methods.comparePassword = function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
