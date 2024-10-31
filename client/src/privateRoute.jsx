@@ -3,34 +3,33 @@ import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
 const PrivateRoute = ({ children }) => {
-  const [isValid, setIsValid] = useState(false);
+  const [isValid, setIsValid] = useState(null); // Start as `null` to indicate loading state
   const token = localStorage.getItem('authToken');
 
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        await axios.get('https://signin-signup-a8q1.onrender.com/verifytoken', {
+        const response = await axios.get('https://signin-signup-a8q1.onrender.com/verifytoken', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setIsValid(true);
+        setIsValid(response.data.isValid); // Adjust to response structure
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          localStorage.removeItem('authToken'); // Remove invalid token only on 401 error
-        }
+        localStorage.removeItem('authToken');
         setIsValid(false);
       }
     };
 
     if (token) {
       verifyToken();
+    } else {
+      setIsValid(false); // No token, set invalid
     }
   }, [token]);
 
-  if (!token || !isValid) {
-    return <Navigate to="/login" />;
-  }
+  // Render loading indicator until `isValid` is confirmed true or false
+  if (isValid === null) return <div>Loading...</div>;
 
-  return children;
+  return isValid ? children : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;
