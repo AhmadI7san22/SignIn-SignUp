@@ -14,7 +14,9 @@ const PrivateRoute = ({ children }) => {
         });
         setIsValid(true);
       } catch (error) {
-        localStorage.removeItem('authToken'); // Remove invalid token
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem('authToken'); // Remove invalid token only on 401 error
+        }
         setIsValid(false);
       }
     };
